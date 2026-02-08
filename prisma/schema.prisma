@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 商品表
+model Product {
+  id            String   @id @default(cuid())
+  name          String   // 商品名称
+  subtitle      String?  // 副标题/简介
+  description   String?  @db.Text // 富文本详情
+  originalPrice Float    // 原价
+  salePrice     Float    // 促销价
+  cpsLink       String   // CPS 推广链接
+  coverImage    String?  // 封面图片 URL（阿里云 OSS）
+  
+  // 平台分类（多选）
+  platforms     Platform[]
+  
+  // 渠道
+  channelId     String?
+  channel       Channel?  @relation(fields: [channelId], references: [id])
+  
+  // 状态
+  isActive      Boolean  @default(true)
+  viewCount     Int      @default(0)
+  clickCount    Int      @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 平台枚举
+model Platform {
+  id        String    @id @default(cuid())
+  name      String    @unique // Windows, Mac, iOS, Android
+  icon      String?   // 平台图标
+  products  Product[]
+}
+
+// 渠道/供应商
+model Channel {
+  id        String    @id @default(cuid())
+  name      String    @unique // 金州软件、未来教育、荔枝软件
+  color     String?   // 显示颜色
+  products  Product[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 管理员用户
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // bcrypt 加密
+  name      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 系统配置
+model SiteConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
