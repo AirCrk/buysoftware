@@ -27,19 +27,19 @@ async function main() {
     console.log('✓ 平台数据已创建');
 
     // 创建管理员账户
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('HON123wellx', 10);
     await prisma.adminUser.upsert({
-        where: { email: 'admin@buysoft.com' },
+        where: { email: 'aircrk@gmai.com' },
         update: {},
         create: {
-            email: 'admin@buysoft.com',
+            email: 'aircrk@gmai.com',
             password: hashedPassword,
             name: 'Admin',
         },
     });
     console.log('✓ 管理员账户已创建');
-    console.log('  邮箱: admin@buysoft.com');
-    console.log('  密码: admin123');
+    console.log('  邮箱: aircrk@gmai.com');
+    console.log('  密码: HON123wellx');
 
     // 创建渠道
     const channels = [
