@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: '/Users/shenzhendeyang/Documents/trae_projects/buysoft',
+  },
   serverExternalPackages: ['ali-oss', 'proxy-agent'],
   images: {
     remotePatterns: [
