@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, X, Edit, Trash2, Plus, Loader2, Filter } from 'lucide-react';
+import {
+    ArrowLeft, Edit, Trash2, Plus, Loader2, Filter, Search,
+    ChevronLeft, ChevronRight
+} from 'lucide-react';
 import Image from 'next/image';
 
 interface Platform {
@@ -27,8 +30,15 @@ export default function AdminProductsPage() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [platforms, setPlatforms] = useState<Platform[]>([]);
-    const [selectedPlatform, setSelectedPlatform] = useState('');
     const [loading, setLoading] = useState(true);
+
+    // 筛选与分页状态
+    const [selectedPlatform, setSelectedPlatform] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const PAGE_SIZE = 20;
 
     // 获取平台列表
     useEffect(() => {
@@ -45,17 +55,27 @@ export default function AdminProductsPage() {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            let url = '/api/admin/products';
-            const params = new URLSearchParams();
+            const params = new URLSearchParams({
+                page: page.toString(),
+                pageSize: PAGE_SIZE.toString(),
+            });
+
             if (selectedPlatform) {
                 params.append('platformId', selectedPlatform);
             }
+            if (searchQuery) {
+                params.append('search', searchQuery);
+            }
 
-            const res = await fetch(`${url}?${params}`);
+            const res = await fetch(`/api/admin/products?${params}`);
             const data = await res.json();
 
             if (data.success) {
                 setProducts(data.data);
+                if (data.pagination) {
+                    setTotalPages(data.pagination.totalPages);
+                    setTotalItems(data.pagination.total);
+                }
             } else {
                 console.error(data.error);
             }
@@ -66,9 +86,15 @@ export default function AdminProductsPage() {
         }
     };
 
+    // 当筛选条件变化时，重置页码并重新获取
+    useEffect(() => {
+        setPage(1);
+    }, [selectedPlatform, searchQuery]);
+
+    // 当页码变化时获取数据
     useEffect(() => {
         fetchProducts();
-    }, [selectedPlatform]);
+    }, [page, selectedPlatform, searchQuery]); // 注意：这会导致 initial load 触发 fetch
 
     const handleDelete = async (id: string) => {
         if (!window.confirm('确定要删除这个商品吗？')) return;
@@ -79,7 +105,12 @@ export default function AdminProductsPage() {
             });
             const data = await res.json();
             if (data.success) {
-                setProducts(prev => prev.filter(p => p.id !== id));
+                // 如果当前页删空了，且不是第一页，回到上一页
+                if (products.length === 1 && page > 1) {
+                    setPage(p => p - 1);
+                } else {
+                    fetchProducts();
+                }
             } else {
                 alert(data.error || '删除失败');
             }
@@ -92,16 +123,29 @@ export default function AdminProductsPage() {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">商品管理</h1>
                         <p className="text-gray-500 mt-1">管理系统中的所有软件商品</p>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* 搜索框 */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="搜索商品..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white w-48 sm:w-64"
+                            />
+                        </div>
+
+                        {/* 平台筛选 */}
                         <select
                             value={selectedPlatform}
                             onChange={(e) => setSelectedPlatform(e.target.value)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 min-w-[140px]"
+                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 min-w-[120px]"
                         >
                             <option value="">所有平台</option>
                             {platforms.map((platform) => (
@@ -110,19 +154,21 @@ export default function AdminProductsPage() {
                                 </option>
                             ))}
                         </select>
+
+                        {/* 添加按钮 */}
                         <Link
                             href="/admin/products/new"
                             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             <Plus className="w-5 h-5" />
-                            添加商品
+                            <span className="hidden sm:inline">添加商品</span>
                         </Link>
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                {/* Table & Pagination Container */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-[500px]">
+                    <div className="overflow-x-auto flex-1">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
@@ -224,6 +270,62 @@ export default function AdminProductsPage() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    {totalItems > 0 && (
+                        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <button
+                                    onClick={() => setPage(Math.max(1, page - 1))}
+                                    disabled={page === 1}
+                                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    上一页
+                                </button>
+                                <button
+                                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                                    disabled={page === totalPages}
+                                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    下一页
+                                </button>
+                            </div>
+                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        显示第 <span className="font-medium">{(page - 1) * PAGE_SIZE + 1}</span> 到 <span className="font-medium">{Math.min(page * PAGE_SIZE, totalItems)}</span> 条，
+                                        共 <span className="font-medium">{totalItems}</span> 条
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                        <button
+                                            onClick={() => setPage(Math.max(1, page - 1))}
+                                            disabled={page === 1}
+                                            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <span className="sr-only">上一页</span>
+                                            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                                        </button>
+
+                                        {/* 页码显示 - 简化版 */}
+                                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
+                                            {page} / {totalPages}
+                                        </span>
+
+                                        <button
+                                            onClick={() => setPage(Math.min(totalPages, page + 1))}
+                                            disabled={page === totalPages}
+                                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <span className="sr-only">下一页</span>
+                                            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

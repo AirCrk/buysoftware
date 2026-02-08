@@ -44,6 +44,10 @@ export default function AdminDashboard() {
     const [searchQuery, setSearchQuery] = useState('');
     const [platforms, setPlatforms] = useState<Platform[]>([]);
     const [selectedPlatform, setSelectedPlatform] = useState('');
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const PAGE_SIZE = 20;
 
     // 检查登录状态
     useEffect(() => {
@@ -58,18 +62,24 @@ export default function AdminDashboard() {
             const params = new URLSearchParams({ admin: 'true' });
             if (searchQuery) params.append('search', searchQuery);
             if (selectedPlatform) params.append('platformId', selectedPlatform);
+            params.append('page', page.toString());
+            params.append('pageSize', PAGE_SIZE.toString());
 
             const res = await fetch(`/api/products?${params}`);
             const data = await res.json();
             if (data.success) {
                 setProducts(data.data);
+                if (data.pagination) {
+                    setTotalPages(data.pagination.totalPages);
+                    setTotalItems(data.pagination.total);
+                }
             }
         } catch (error) {
             console.error('获取商品失败:', error);
         } finally {
             setLoading(false);
         }
-    }, [searchQuery, selectedPlatform]);
+    }, [searchQuery, selectedPlatform, page]);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -374,6 +384,63 @@ export default function AdminDashboard() {
                             )}
                         </tbody>
                     </table>
+
+                    {/* 分页控件 */}
+                    {totalItems > 0 && (
+                        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <button
+                                    onClick={() => setPage(Math.max(1, page - 1))}
+                                    disabled={page === 1}
+                                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    上一页
+                                </button>
+                                <button
+                                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                                    disabled={page === totalPages}
+                                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    下一页
+                                </button>
+                            </div>
+                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        显示第 <span className="font-medium">{(page - 1) * PAGE_SIZE + 1}</span> 到 <span className="font-medium">{Math.min(page * PAGE_SIZE, totalItems)}</span> 条，
+                                        共 <span className="font-medium">{totalItems}</span> 条
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                        <button
+                                            onClick={() => setPage(Math.max(1, page - 1))}
+                                            disabled={page === 1}
+                                            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                        >
+                                            <span className="sr-only">上一页</span>
+                                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
+                                            {page} / {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={() => setPage(Math.min(totalPages, page + 1))}
+                                            disabled={page === totalPages}
+                                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                        >
+                                            <span className="sr-only">下一页</span>
+                                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
