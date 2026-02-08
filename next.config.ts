@@ -17,13 +17,19 @@ const nextConfig: NextConfig = {
         hostname: '**.oss-*.aliyuncs.com',
       },
       {
-        // 允许任意外部图片域名
+        // 允许任意外部图片域名 (HTTPS)
         protocol: 'https',
-        hostname: '**',
+        hostname: '*',
       },
       {
+        // 允许任意外部图片域名 (HTTP)
         protocol: 'http',
-        hostname: '**',
+        hostname: '*',
+      },
+      {
+        // 显式添加特定域名以防通配符不生效
+        protocol: 'http',
+        hostname: 'img.shenzhendeyang.com',
       },
     ],
   },
