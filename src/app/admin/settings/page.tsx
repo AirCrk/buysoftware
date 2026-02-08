@@ -181,8 +181,8 @@ export default function SettingsPage() {
             const data = await res.json();
             if (!data.success) throw new Error(data.error);
             return true;
-        } catch (error) {
-            alert('保存 Banner 配置失败');
+        } catch (error: any) {
+            alert('保存 Banner 配置失败: ' + (error.message || '未知错误'));
             return false;
         }
     };

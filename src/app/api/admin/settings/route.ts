@@ -162,8 +162,11 @@ export async function POST(request: NextRequest) {
             default:
                 return NextResponse.json({ success: false, error: '未知操作' }, { status: 400 });
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('更新设置失败:', error);
-        return NextResponse.json({ success: false, error: '操作失败' }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            error: error.message || '操作失败'
+        }, { status: 500 });
     }
 }
