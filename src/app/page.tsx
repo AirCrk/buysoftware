@@ -7,30 +7,27 @@ import type { Product, BannerSlide, FriendLink, SiteConfig } from '@/types';
 export const revalidate = 60;
 
 async function getInitialData() {
-  const [
-    productsData,
-    siteConfigs,
-    friendLinksData
-  ] = await Promise.all([
-    prisma.product.findMany({
-      where: { isActive: true },
-      include: {
-        platforms: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.siteConfig.findMany({
-      where: {
-        key: {
-          in: ['site_name', 'site_logo', 'footer_copyright', 'footer_description', 'banner_slides']
-        }
+  // Serial execution to avoid database connection exhaustion in constrained environments
+  const productsData = await prisma.product.findMany({
+    where: { isActive: true },
+    include: {
+      platforms: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const siteConfigs = await prisma.siteConfig.findMany({
+    where: {
+      key: {
+        in: ['site_name', 'site_logo', 'footer_copyright', 'footer_description', 'banner_slides']
       }
-    }),
-    prisma.friendLink.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-    })
-  ]);
+    }
+  });
+
+  const friendLinksData = await prisma.friendLink.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: 'asc' },
+  });
 
   return { productsData, siteConfigs, friendLinksData };
 }

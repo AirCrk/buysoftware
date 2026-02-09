@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Search, Mail, Monitor, Apple, Smartphone } from 'lucide-react';
+import { Search, Monitor, Apple, Smartphone, Globe, Home, Star, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import BannerCarousel from '@/components/BannerCarousel';
@@ -9,11 +9,21 @@ import type { Product, BannerSlide, FriendLink, SiteConfig } from '@/types';
 
 const platformIcons: Record<string, React.ReactNode> = {
   windows: <Monitor className="w-4 h-4" />,
+  mac: <Monitor className="w-4 h-4" />, // Mac usually shares Monitor or specific
   apple: <Apple className="w-4 h-4" />,
   android: <Smartphone className="w-4 h-4" />,
+  ios: <Apple className="w-4 h-4" />,
+  web: <Globe className="w-4 h-4" />,
 };
 
-const categories = ['全部', 'Windows', 'Mac', 'iOS', 'Android'];
+const navCategories = [
+  { id: '全部', label: '首页', icon: Home },
+  { id: 'Windows', label: 'Windows', icon: Monitor },
+  { id: 'Mac', label: 'macOS', icon: Apple }, // Using Apple icon for macOS to match style
+  { id: 'iOS', label: 'iOS', icon: Apple },
+  { id: 'Android', label: 'Android', icon: Smartphone },
+  { id: 'Web', label: 'Web', icon: Globe },
+];
 
 interface HomePageClientProps {
   initialProducts: Product[];
@@ -38,7 +48,10 @@ export default function HomePageClient({
     try {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
-      if (activeCategory !== '全部') params.append('platform', activeCategory);
+      if (activeCategory !== '全部') {
+         // Map UI category to API platform param if needed, or backend handles it
+         params.append('platform', activeCategory);
+      }
 
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
@@ -52,50 +65,18 @@ export default function HomePageClient({
     }
   }, [searchQuery, activeCategory]);
 
-  // Only trigger fetch if search or category changes from initial state
-  // However, since we pass initialProducts, we don't need to fetch on mount.
-  // We only fetch when user interacts.
+  // ... (effect logic remains same)
   
-  // We need to trigger fetch when activeCategory or searchQuery changes, 
-  // BUT NOT on the first render because we have initial data.
-  // A simple way is to use a ref to track mount or just rely on user events.
-  // But wait, if I change category, I need to fetch.
-  // If I rely on useEffect([activeCategory, searchQuery]), it will run on mount too?
-  // React 18 useEffect runs twice in dev, but usually once after mount.
-  // If I want to avoid double fetching on mount, I should skip the first effect run 
-  // OR just let it run (it might be fast enough or redundant).
-  // Better: Only call fetchProducts when user clicks search or category tab.
-  // But wait, `activeCategory` state change should trigger it.
-  
-  // Let's use useEffect but with a check or just accept one redundant call if it happens (though with initial data matching default state, we can skip).
-  
-  // Actually, if I just call fetchProducts in the click handlers, I don't need the effect?
-  // But Search is a form submit. Category is a button click.
-  // Yes, explicit calls are better to avoid "effect hell".
-  
-  // EXCEPT: `activeCategory` state update is async. So calling fetchProducts immediately after setActiveCategory uses old state.
-  // So useEffect is safer for category. For search, it's onSubmit, so we can use the input value directly or state.
-  
-  // Let's stick to useEffect but skip if it matches initial conditions? 
-  // Initial: '全部', ''.
-  // If activeCategory === '全部' && searchQuery === '', we can skip if we haven't touched anything.
-  // But maybe simpler: just let it be controlled by effects, but add a `isFirstRun` ref.
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchProducts();
   };
 
-  const handleCategoryChange = (cat: string) => {
-    setActiveCategory(cat);
-    // We'll let the effect handle the fetch to ensure state is updated
+  const handleCategoryChange = (catId: string) => {
+    setActiveCategory(catId);
   };
   
-  // Using effect for category change
-  // We need to avoid running this on initial mount since we have data.
   const [isFirstMount, setIsFirstMount] = useState(true);
-
-
 
   useEffect(() => {
     if (isFirstMount) {
@@ -103,7 +84,7 @@ export default function HomePageClient({
       return;
     }
     fetchProducts();
-  }, [activeCategory, fetchProducts, isFirstMount]); // removed fetchProducts from deps to avoid loop if fetchProducts changes (it uses useCallback so it's fine, but still)
+  }, [activeCategory, fetchProducts, isFirstMount]);
 
   const handleProductClick = (product: Product) => {
     const targetSlug = product.slug || product.id;
@@ -112,11 +93,11 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 顶部导航 */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      {/* Top Header (White) */}
+      <header className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             {siteConfig.site_logo ? (
               <div className="relative w-8 h-8 rounded-lg overflow-hidden">
                 <Image
@@ -127,7 +108,7 @@ export default function HomePageClient({
                 />
               </div>
             ) : (
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#0e7490] to-[#0891b2] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">
                   {siteConfig.site_name.charAt(0)}
                 </span>
@@ -136,69 +117,76 @@ export default function HomePageClient({
             <span className="text-xl font-bold text-gray-900">{siteConfig.site_name}</span>
           </Link>
 
-          {/* 搜索框 */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-8">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="搜索软件..."
-                  className="w-full pl-12 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
-                />
-              </div>
+          {/* Search Box (Right aligned) */}
+          <form onSubmit={handleSearch} className="flex-1 max-w-sm">
+            <div className="relative group">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="输入关键词搜索..."
+                className="w-full pl-4 pr-10 py-2 bg-gray-100 border-none rounded-md text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-[#0e7490]/20 focus:bg-white transition-all"
+              />
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap"
+                className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-[#0e7490] transition-colors"
               >
-                搜索
+                <Search className="w-4 h-4" />
               </button>
             </div>
           </form>
-
-          {/* 右侧导航 */}
-          <div className="flex items-center gap-4">
-            <a
-              href="https://work.weixin.qq.com/ca/cawcdeb53ea1d4a8fe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600"
-            >
-              <Mail className="w-4 h-4" />
-              联系我们
-            </a>
-          </div>
         </div>
       </header>
 
-      {/* 分类筛选 */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryChange(cat)}
-                className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
-              >
-                {cat}
-              </button>
-            ))}
+      {/* Hero Section (Teal Background) */}
+      <div className="bg-[#0e7490] text-white">
+        <div className="max-w-7xl mx-auto">
+          {/* Banner Area */}
+          <div className="px-4 py-6">
+            {initialBannerSlides.length > 0 ? (
+              <div className="rounded-xl overflow-hidden shadow-lg bg-black/10">
+                 <BannerCarousel slides={initialBannerSlides} autoPlayInterval={5000} />
+              </div>
+            ) : (
+               /* Placeholder banner if none exists, to maintain layout structure */
+               <div className="h-[200px] sm:h-[280px] bg-[#155e75] rounded-xl flex flex-col items-center justify-center text-white/30 border-2 border-dashed border-white/10">
+                 <LayoutGrid className="w-12 h-12 mb-2 opacity-50" />
+                 <p>暂无广告轮播图</p>
+               </div>
+            )}
+          </div>
+
+          {/* Navigation Bar (Bottom of Hero) */}
+          <div className="px-4 pb-1">
+            <div className="flex flex-wrap items-center gap-1">
+              {navCategories.map((cat) => {
+                 const Icon = cat.icon;
+                 const isActive = activeCategory === cat.id;
+                 return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 rounded-t-lg text-sm font-medium transition-colors
+                      ${isActive 
+                        ? 'bg-[#0891b2] text-white shadow-sm' 
+                        : 'text-cyan-100 hover:bg-white/10 hover:text-white'
+                      }
+                    `}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {cat.label}
+                  </button>
+                 );
+              })}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* 广告轮播 */}
-      {initialBannerSlides.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 pt-6">
-          <BannerCarousel slides={initialBannerSlides} autoPlayInterval={5000} />
-        </div>
-      )}
-
-      {/* 商品列表 */}
+      
+      {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

@@ -45,6 +45,7 @@ export default function ProductEditPage() {
         originalPrice: '',
         salePrice: '',
         cpsLink: '',
+        downloadUrl: '',
         coverImage: '',
         platformIds: [] as string[],
         channelId: '',
@@ -89,6 +90,7 @@ export default function ProductEditPage() {
                     originalPrice: product.originalPrice?.toString() || '',
                     salePrice: product.salePrice?.toString() || '',
                     cpsLink: product.cpsLink || '',
+                    downloadUrl: product.downloadUrl || '',
                     coverImage: product.coverImage || '',
                     platformIds: product.platforms?.map((p: Platform) => p.id) || [],
                     channelId: product.channelId || '',
@@ -291,6 +293,19 @@ export default function ProductEditPage() {
                             value={formData.cpsLink}
                             onChange={(e) => setFormData((prev) => ({ ...prev, cpsLink: e.target.value }))}
                             placeholder="https://..."
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            下载地址 (可选)
+                        </label>
+                        <input
+                            type="url"
+                            value={formData.downloadUrl}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, downloadUrl: e.target.value }))}
+                            placeholder="https://... (提供此链接将显示下载按钮)"
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>

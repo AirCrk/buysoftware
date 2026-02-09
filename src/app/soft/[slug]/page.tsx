@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Monitor, Apple, Smartphone, ShoppingCart, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Monitor, Apple, Smartphone, ShoppingCart, ExternalLink, Download } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 
@@ -128,6 +128,18 @@ export default async function ProductPage({ params }: Props) {
                                         </div>
                                     )}
                                 </div>
+
+                                {product.downloadUrl && (
+                                    <a
+                                        href={product.downloadUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-100 hover:border-blue-200 text-lg font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-105 active:scale-95 min-w-[160px]"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                        下载试用
+                                    </a>
+                                )}
 
                                 <a
                                     href={product.cpsLink}

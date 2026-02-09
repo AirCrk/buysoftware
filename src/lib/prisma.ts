@@ -9,7 +9,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-    const connectionString = process.env.DATABASE_URL;
+    console.log('🔄 [Prisma] Creating new PrismaClient instance...');
+    let connectionString = process.env.DATABASE_URL;
 
     if (!connectionString) {
         // 在构建阶段或未配置环境变量时，提供更友好的错误提示
@@ -21,17 +22,13 @@ function createPrismaClient() {
 
     // 限制连接池大小，避免 Supabase 连接数耗尽
     if (process.env.NODE_ENV !== 'production') {
-        // 检查是否仍在使用 5432 (Session Mode)
+        // 自动将 5432 (Session Mode) 替换为 6543 (Transaction Mode)
         if (connectionString?.includes(':5432')) {
-            const errorMsg = `
-================================================================================
-🚨 错误：检测到旧的数据库连接配置 (端口 5432)！
-   您必须【重启开发服务器】(Ctrl+C 然后 npm run dev) 以应用新的 .env 配置。
-   新的配置应使用端口 6543 (Transaction Mode) 来解决连接数限制问题。
-================================================================================
-            `;
-            console.warn(errorMsg);
-            // throw new Error('请重启开发服务器以应用 .env 更新！');
+            console.warn('⚠️ 检测到端口 5432，自动切换到 6543 (Transaction Mode) 以解决连接限制问题。');
+            // 注意：这里我们修改的是局部变量，用来创建 Pool
+            // eslint-disable-next-line no-param-reassign
+            // @ts-ignore
+            connectionString = connectionString.replace(':5432', ':6543');
         }
 
         // 脱敏输出连接字符串，方便调试连接模式（Session:5432 vs Transaction:6543）
