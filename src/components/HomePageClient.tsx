@@ -138,18 +138,18 @@ export default function HomePageClient({
         </div>
       </header>
 
-      {/* Hero Section (Teal Background) */}
-      <div className="bg-[#0e7490] text-white">
+      {/* Hero Section (Light Background) */}
+      <div className="bg-slate-50 text-gray-900 border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
           {/* Banner Area */}
           <div className="px-4 py-6">
             {initialBannerSlides.length > 0 ? (
-              <div className="rounded-xl overflow-hidden shadow-lg bg-black/10">
+              <div className="rounded-xl overflow-hidden shadow-sm bg-gray-200">
                  <BannerCarousel slides={initialBannerSlides} autoPlayInterval={5000} />
               </div>
             ) : (
-               /* Placeholder banner if none exists, to maintain layout structure */
-               <div className="h-[200px] sm:h-[280px] bg-[#155e75] rounded-xl flex flex-col items-center justify-center text-white/30 border-2 border-dashed border-white/10">
+               /* Placeholder banner if none exists */
+               <div className="h-[200px] sm:h-[280px] bg-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-300">
                  <LayoutGrid className="w-12 h-12 mb-2 opacity-50" />
                  <p>暂无广告轮播图</p>
                </div>
@@ -167,10 +167,10 @@ export default function HomePageClient({
                     key={cat.id}
                     onClick={() => handleCategoryChange(cat.id)}
                     className={`
-                      flex items-center gap-2 px-4 py-3 rounded-t-lg text-sm font-medium transition-colors
+                      flex items-center gap-2 px-4 py-3 rounded-t-lg text-sm font-medium transition-all
                       ${isActive 
-                        ? 'bg-[#0891b2] text-white shadow-sm' 
-                        : 'text-cyan-100 hover:bg-white/10 hover:text-white'
+                        ? 'bg-slate-800 text-white shadow-md translate-y-[1px]' 
+                        : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'
                       }
                     `}
                   >

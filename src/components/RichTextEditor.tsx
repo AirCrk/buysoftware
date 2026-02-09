@@ -3,9 +3,11 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
+import VideoExtension from '@/lib/tiptap/video-extension';
 import {
     Bold, Italic, List, ListOrdered, Heading1, Heading2,
-    Image, Undo, Redo, Upload, CloudUpload, Link, X, Loader2
+    Image, Undo, Redo, Upload, CloudUpload, Link, X, Loader2,
+    Video as VideoIcon
 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
@@ -17,7 +19,9 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [showImageModal, setShowImageModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [imageUrl, setImageUrl] = useState('');
+    const [videoUrl, setVideoUrl] = useState('');
     const [uploading, setUploading] = useState(false);
 
     const editor = useEditor({
@@ -28,6 +32,7 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                     class: 'max-w-full h-auto rounded-lg',
                 },
             }),
+            VideoExtension,
         ],
         content,
         immediatelyRender: false,
@@ -91,6 +96,15 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
         editor.chain().focus().setImage({ src: imageUrl.trim() }).run();
         setImageUrl('');
         setShowImageModal(false);
+    };
+
+    // 插入视频
+    const handleInsertVideo = () => {
+        if (!editor || !videoUrl.trim()) return;
+
+        editor.chain().focus().setVideo({ src: videoUrl.trim() }).run();
+        setVideoUrl('');
+        setShowVideoModal(false);
     };
 
     if (!editor) {
@@ -165,6 +179,14 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                     title="插入图片"
                 >
                     <Image className="w-4 h-4" />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setShowVideoModal(true)}
+                    className="p-2 rounded hover:bg-gray-200 text-gray-600"
+                    title="插入视频"
+                >
+                    <VideoIcon className="w-4 h-4" />
                 </button>
                 <input
                     ref={fileInputRef}
@@ -304,6 +326,70 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                                 className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 插入图片
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* 视频插入弹窗 */}
+            {showVideoModal && (
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl mx-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-lg">插入视频</h3>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowVideoModal(false);
+                                    setVideoUrl('');
+                                }}
+                                className="p-1 hover:bg-gray-100 rounded"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <VideoIcon className="w-4 h-4 inline mr-1" />
+                                    视频播放地址 (MP4/WebM)
+                                </label>
+                                <input
+                                    type="url"
+                                    value={videoUrl}
+                                    onChange={(e) => setVideoUrl(e.target.value)}
+                                    placeholder="https://example.com/video.mp4"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleInsertVideo();
+                                        }
+                                    }}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">请输入视频文件的直链地址</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowVideoModal(false);
+                                    setVideoUrl('');
+                                }}
+                                className="flex-1 btn-secondary"
+                            >
+                                取消
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleInsertVideo}
+                                disabled={!videoUrl.trim()}
+                                className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                插入视频
                             </button>
                         </div>
                     </div>
