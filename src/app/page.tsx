@@ -68,6 +68,7 @@ export default async function HomePage() {
     salePrice: p.salePrice,
     cpsLink: p.cpsLink,
     coverImage: p.coverImage,
+    logo: p.logo,
     slug: p.slug,
     platforms: p.platforms.map(pl => ({
       id: pl.id,

@@ -215,11 +215,11 @@ export default function HomePageClient({
                   })}
                 </div>
 
-                {/* 封面图 */}
+                {/* 封面图/Logo */}
                 <div className="w-16 h-16 mx-auto mb-4 mt-2 rounded-xl overflow-hidden bg-gray-100">
-                  {product.coverImage ? (
+                  {(product.logo || product.coverImage) ? (
                     <Image
-                      src={product.coverImage}
+                      src={product.logo || product.coverImage || ''}
                       alt={product.name}
                       width={64}
                       height={64}

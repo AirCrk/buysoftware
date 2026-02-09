@@ -12,6 +12,7 @@ export interface Product {
   salePrice: number;
   cpsLink: string;
   coverImage: string | null;
+  logo: string | null;
   slug: string | null;
   platforms: Platform[];
 }

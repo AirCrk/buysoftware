@@ -21,6 +21,8 @@ model Product {
   cpsLink       String   // CPS 推广链接
   downloadUrl   String?  // 下载地址
   coverImage    String?  // 封面图片 URL（阿里云 OSS）
+  logo          String?  // 软件Logo URL (首页展示)
+  images        String[] @default([]) // 更多封面图片
   
   // 平台分类（多选）
   platforms     Platform[]

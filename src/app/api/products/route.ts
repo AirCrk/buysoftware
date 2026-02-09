@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { name, subtitle, description, originalPrice, salePrice, cpsLink, downloadUrl, coverImage, platformIds, channelId } = body;
+        const { name, subtitle, description, originalPrice, salePrice, cpsLink, downloadUrl, coverImage, logo, images, platformIds, channelId } = body;
         let { slug } = body;
 
         if (!name || !cpsLink) {
@@ -124,7 +124,9 @@ export async function POST(request: NextRequest) {
                 salePrice: parseFloat(salePrice) || 0,
                 cpsLink,
                 downloadUrl,
-                coverImage,
+                coverImage: images && images.length > 0 ? images[0] : coverImage,
+                logo,
+                images: images || [],
                 platforms: platformIds?.length ? {
                     connect: platformIds.map((id: string) => ({ id }))
                 } : undefined,

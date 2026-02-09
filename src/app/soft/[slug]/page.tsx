@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Monitor, Apple, Smartphone, ShoppingCart, ExternalLink, Download } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
+import ProductGallery from '@/components/ProductGallery';
 
 // 强制动态渲染，确保获取最新数据
 export const dynamic = 'force-dynamic';
@@ -77,22 +78,11 @@ export default async function ProductPage({ params }: Props) {
                     {/* 商品头部信息 */}
                     <div className="p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
                         {/* 左侧：图标/封面 */}
-                        <div className="flex-shrink-0">
-                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden bg-gray-100 shadow-inner mx-auto md:mx-0">
-                                {product.coverImage ? (
-                                    <Image
-                                        src={product.coverImage}
-                                        alt={product.name}
-                                        width={160}
-                                        height={160}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                        <span className="text-4xl font-bold">{product.name.charAt(0)}</span>
-                                    </div>
-                                )}
-                            </div>
+                        <div className="flex-shrink-0 w-full md:w-80">
+                            <ProductGallery 
+                                images={product.images && product.images.length > 0 ? product.images : (product.coverImage ? [product.coverImage] : [])}
+                                name={product.name}
+                            />
                         </div>
 
                         {/* 右侧：详细信息 */}

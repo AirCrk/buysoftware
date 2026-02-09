@@ -38,7 +38,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { name, subtitle, description, originalPrice, salePrice, cpsLink, downloadUrl, coverImage, platformIds, channelId, isActive } = body;
+        const { name, subtitle, description, originalPrice, salePrice, cpsLink, downloadUrl, coverImage, logo, images, platformIds, channelId, isActive } = body;
 
         const product = await prisma.product.update({
             where: { id },
@@ -50,7 +50,9 @@ export async function PUT(
                 salePrice: parseFloat(salePrice) || 0,
                 cpsLink,
                 downloadUrl,
-                coverImage,
+                coverImage: images && images.length > 0 ? images[0] : coverImage,
+                logo,
+                images: images || [],
                 isActive,
                 channelId: channelId || null,
                 platforms: {

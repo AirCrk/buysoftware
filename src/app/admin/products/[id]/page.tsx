@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Upload, X, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Upload, X, Save, Loader2, CloudUpload } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 
@@ -47,6 +47,8 @@ export default function ProductEditPage() {
         cpsLink: '',
         downloadUrl: '',
         coverImage: '',
+        logo: '',
+        images: [] as string[],
         platformIds: [] as string[],
         channelId: '',
         isActive: true,
@@ -92,6 +94,8 @@ export default function ProductEditPage() {
                     cpsLink: product.cpsLink || '',
                     downloadUrl: product.downloadUrl || '',
                     coverImage: product.coverImage || '',
+                    logo: product.logo || '',
+                    images: product.images || (product.coverImage ? [product.coverImage] : []),
                     platformIds: product.platforms?.map((p: Platform) => p.id) || [],
                     channelId: product.channelId || '',
                     isActive: product.isActive ?? true,
@@ -112,33 +116,107 @@ export default function ProductEditPage() {
         }
     }, [status, fetchProduct, router]);
 
-    // 上传封面图片
-    const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 上传 Logo
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'oss' | 'smms' = 'oss') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setUploading(true);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', 'covers');
+        
+        if (target === 'oss') {
+            formData.append('folder', 'logos');
+        }
 
         try {
-            const res = await fetch('/api/upload', {
+            const endpoint = target === 'smms' ? '/api/upload/smms' : '/api/upload';
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
-            if (data.success) {
-                setFormData((prev) => ({ ...prev, coverImage: data.url }));
+            if (data.success && data.url) {
+                setFormData((prev) => ({ ...prev, logo: data.url }));
             } else {
-                alert('上传失败');
+                alert(data.error || '上传失败');
             }
         } catch (error) {
+            console.error(error);
             alert('上传失败');
         } finally {
             setUploading(false);
+            e.target.value = '';
         }
+    };
+
+    // 上传封面图片
+    const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'oss' | 'smms' = 'oss') => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        if (target === 'oss') {
+            formData.append('folder', 'covers');
+        }
+
+        try {
+            const endpoint = target === 'smms' ? '/api/upload/smms' : '/api/upload';
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+
+            if (data.success && data.url) {
+                setFormData((prev) => {
+                    const newImages = [...prev.images, data.url];
+                    return { 
+                        ...prev, 
+                        images: newImages,
+                        coverImage: newImages[0] // 始终使用第一张作为封面
+                    };
+                });
+            } else {
+                alert(data.error || '上传失败');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('上传失败');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    // 移除图片
+    const removeImage = (index: number) => {
+        setFormData((prev) => {
+            const newImages = prev.images.filter((_, i) => i !== index);
+            return {
+                ...prev,
+                images: newImages,
+                coverImage: newImages[0] || ''
+            };
+        });
+    };
+
+    // 设为封面（移动到第一位）
+    const setAsCover = (index: number) => {
+        setFormData((prev) => {
+            const newImages = [...prev.images];
+            const [item] = newImages.splice(index, 1);
+            newImages.unshift(item);
+            return {
+                ...prev,
+                images: newImages,
+                coverImage: newImages[0]
+            };
+        });
     };
 
     // 保存商品
@@ -311,71 +389,199 @@ export default function ProductEditPage() {
                     </div>
                 </div>
 
-                {/* 封面上传 */}
+                {/* 软件Logo上传 */}
                 <div className="bg-white rounded-xl p-6 space-y-5">
-                    <h2 className="font-bold text-lg text-gray-900">封面图片</h2>
-
-                    <div className="flex items-start gap-6">
+                    <h2 className="font-bold text-lg text-gray-900">软件Logo (首页展示)</h2>
+                    
+                    <div className="flex flex-col sm:flex-row gap-6 items-start">
                         {/* 预览 */}
-                        <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                            {formData.coverImage ? (
-                                <div className="relative w-full h-full group">
+                        <div className="w-24 h-24 rounded-xl bg-gray-100 flex-shrink-0 border border-gray-200 overflow-hidden relative group">
+                            {formData.logo ? (
+                                <>
                                     <Image
-                                        src={formData.coverImage}
-                                        alt="封面"
-                                        width={96}
-                                        height={96}
-                                        className="w-full h-full object-cover"
+                                        src={formData.logo}
+                                        alt="Logo"
+                                        fill
+                                        className="object-cover"
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setFormData((prev) => ({ ...prev, coverImage: '' }))}
+                                        onClick={() => setFormData(prev => ({ ...prev, logo: '' }))}
                                         className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="删除"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
-                                </div>
+                                </>
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                    <Upload className="w-8 h-8" />
+                                    <span className="text-xs">无Logo</span>
                                 </div>
                             )}
                         </div>
 
-                        {/* 上传/外链选项 */}
+                        {/* 上传控件 */}
                         <div className="flex-1 space-y-4">
-                            <div className="flex gap-4">
+                            <div className="flex flex-wrap gap-3">
                                 <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
                                     {uploading ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
                                         <Upload className="w-4 h-4" />
                                     )}
-                                    {uploading ? '上传中...' : '上传图片'}
+                                    {uploading ? '上传中...' : '上传Logo'}
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleCoverUpload}
+                                        onChange={(e) => handleLogoUpload(e, 'oss')}
                                         className="hidden"
                                         disabled={uploading}
                                     />
                                 </label>
-                                <span className="text-gray-400 self-center">或</span>
+                                
+                                <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                                    {uploading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <CloudUpload className="w-4 h-4" />
+                                    )}
+                                    {uploading ? '上传中...' : 'SM.MS 图床'}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleLogoUpload(e, 'smms')}
+                                        className="hidden"
+                                        disabled={uploading}
+                                    />
+                                </label>
                             </div>
-
-                            <div>
-                                <input
-                                    type="url"
-                                    value={formData.coverImage.startsWith('http') && !formData.coverImage.includes('/api/') ? formData.coverImage : ''}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
-                                    placeholder="输入图片外链地址，如 https://example.com/image.png"
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                                <p className="text-sm text-gray-500 mt-2">
-                                    支持上传图片（最大 5MB）或直接输入图片外链地址
-                                </p>
-                            </div>
+                            
+                            <input
+                                type="url"
+                                value={formData.logo}
+                                onChange={(e) => setFormData(prev => ({ ...prev, logo: e.target.value }))}
+                                placeholder="或输入Logo图片链接"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                            />
+                            <p className="text-sm text-gray-500">
+                                建议尺寸：1:1 或 4:3，用于首页卡片展示。若未设置，将使用默认首字母图标。
+                            </p>
                         </div>
+                    </div>
+                </div>
+
+                {/* 封面上传 */}
+                <div className="bg-white rounded-xl p-6 space-y-5">
+                    <h2 className="font-bold text-lg text-gray-900">商品图片 ({formData.images.length}/5)</h2>
+
+                    <div className="space-y-4">
+                        {/* 图片列表 */}
+                        {formData.images.length > 0 && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                {formData.images.map((img, index) => (
+                                    <div key={index} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group border border-gray-200">
+                                        <Image
+                                            src={img}
+                                            alt={`图片 ${index + 1}`}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                        {/* 操作遮罩 */}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                            {index === 0 ? (
+                                                <span className="text-xs font-bold text-white bg-green-500 px-2 py-0.5 rounded-full">
+                                                    主图
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAsCover(index)}
+                                                    className="text-xs bg-white/90 hover:bg-white text-gray-800 px-2 py-1 rounded"
+                                                >
+                                                    设为主图
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                                title="删除"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 上传区域 */}
+                        {formData.images.length < 5 && (
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300">
+                                <div className="flex gap-3">
+                                    <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
+                                        {uploading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Upload className="w-4 h-4" />
+                                        )}
+                                        {uploading ? '上传中...' : '上传到服务器'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleCoverUpload(e, 'oss')}
+                                            className="hidden"
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                    
+                                    <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                                        {uploading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <CloudUpload className="w-4 h-4" />
+                                        )}
+                                        {uploading ? '上传中...' : 'SM.MS 图床'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleCoverUpload(e, 'smms')}
+                                            className="hidden"
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                </div>
+                                
+                                <div className="flex-1 w-full sm:w-auto">
+                                    <input
+                                        type="url"
+                                        placeholder="或输入图片外链地址，回车添加"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const val = e.currentTarget.value.trim();
+                                                if (val) {
+                                                    setFormData(prev => {
+                                                        const newImages = [...prev.images, val];
+                                                        return {
+                                                            ...prev,
+                                                            images: newImages,
+                                                            coverImage: newImages[0]
+                                                        };
+                                                    });
+                                                    e.currentTarget.value = '';
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        
+                        <p className="text-sm text-gray-500">
+                            最多上传 5 张图片。第一张将作为商品封面（主图）。支持拖拽排序（暂未实现，请使用"设为主图"功能）。
+                        </p>
                     </div>
                 </div>
 
