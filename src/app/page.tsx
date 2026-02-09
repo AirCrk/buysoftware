@@ -163,7 +163,7 @@ export default function HomePage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="搜索软件..."
-                  className="search-input pl-10 w-full"
+                  className="search-input pl-12 w-full"
                 />
               </div>
               <button
