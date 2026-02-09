@@ -22,6 +22,7 @@ interface Product {
     originalPrice: number;
     salePrice: number;
     coverImage: string;
+    logo: string;
     isActive: boolean;
     channel: { name: string } | null;
     platforms: Platform[];
@@ -204,18 +205,18 @@ export default function AdminProductsPage() {
                                             <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                                                            {product.coverImage ? (
+                                                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                                                            {(product.logo || product.coverImage) ? (
                                                                 <Image
-                                                                    src={product.coverImage}
+                                                                    src={product.logo || product.coverImage}
                                                                     alt={product.name}
                                                                     width={48}
                                                                     height={48}
                                                                     className="w-full h-full object-cover"
                                                                 />
                                                             ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                                    P
+                                                                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold text-lg">
+                                                                    {product.name.charAt(0)}
                                                                 </div>
                                                             )}
                                                         </div>
