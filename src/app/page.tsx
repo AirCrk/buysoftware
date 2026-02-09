@@ -54,6 +54,8 @@ export default function HomePage() {
   const [siteConfig, setSiteConfig] = useState({
     site_name: 'SoRuan',
     site_logo: '',
+    footer_copyright: '',
+    footer_description: '',
   });
   const [friendLinks, setFriendLinks] = useState<FriendLink[]>([]);
 
@@ -323,10 +325,10 @@ export default function HomePage() {
       {/* 页脚 */}
       <footer className="bg-white border-t border-gray-200 py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>© 2026 BuySoft. 正版软件导航平台</p>
-          <p className="mt-2">本站所有软件均为正版授权，点击购买即跳转至官方或授权渠道</p>
+          <p>{siteConfig.footer_copyright || '© 2026 BuySoft. 正版软件导航平台'}</p>
+          <p className="mt-2 text-xs sm:text-sm">{siteConfig.footer_description || '本站所有软件均为正版授权，点击购买即跳转至官方或授权渠道'}</p>
         </div>
       </footer>
-    </div>
+    </div >
   );
 }

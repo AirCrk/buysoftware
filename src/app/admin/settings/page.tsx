@@ -51,6 +51,8 @@ export default function SettingsPage() {
         site_name: '',
         site_description: '',
         site_logo: '',
+        footer_copyright: '',
+        footer_description: '',
     });
 
     // 广告轮播图
@@ -106,6 +108,8 @@ export default function SettingsPage() {
                     site_name: settings.site_name || '',
                     site_description: settings.site_description || '',
                     site_logo: settings.site_logo || '',
+                    footer_copyright: settings.footer_copyright || '',
+                    footer_description: settings.footer_description || '',
                 });
 
                 if (settings.banner_slides) {
@@ -549,6 +553,33 @@ export default function SettingsPage() {
                                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">留空则显示默认 Logo</p>
+                                </div>
+
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        底部版权信息 (Copyright)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteConfig.footer_copyright}
+                                        onChange={(e) => setSiteConfig(prev => ({ ...prev, footer_copyright: e.target.value }))}
+                                        placeholder="© 2026 BuySoft. 正版软件导航平台"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        底部描述信息
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteConfig.footer_description}
+                                        onChange={(e) => setSiteConfig(prev => ({ ...prev, footer_description: e.target.value }))}
+                                        placeholder="本站所有软件均为正版授权，点击购买即跳转至官方或授权渠道"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
                                 </div>
 
                                 <button

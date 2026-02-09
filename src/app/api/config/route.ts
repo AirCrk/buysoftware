@@ -7,7 +7,7 @@ export async function GET() {
     try {
         const configs = await prisma.siteConfig.findMany({
             where: {
-                key: { in: ['site_name', 'site_description', 'site_logo', 'banner_slides'] }
+                key: { in: ['site_name', 'site_description', 'site_logo', 'banner_slides', 'footer_copyright', 'footer_description'] }
             }
         });
 

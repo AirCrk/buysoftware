@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
             case 'update_site': {
                 // 更新站点配置
-                const siteKeys = ['site_name', 'site_description', 'site_logo', 'banner_slides'];
+                const siteKeys = ['site_name', 'site_description', 'site_logo', 'banner_slides', 'footer_copyright', 'footer_description'];
 
                 for (const key of siteKeys) {
                     if (data[key] !== undefined) {
