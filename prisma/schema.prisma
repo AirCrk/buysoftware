@@ -13,6 +13,7 @@ datasource db {
 model Product {
   id            String   @id @default(cuid())
   name          String   // 商品名称
+  slug          String?  @unique // URL别名(拼音/英文)
   subtitle      String?  // 副标题/简介
   description   String?  @db.Text // 富文本详情
   originalPrice Float    // 原价

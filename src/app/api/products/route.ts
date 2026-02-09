@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from "@/lib/auth";
 import prisma from '@/lib/prisma';
 
 // GET - 获取商品列表
@@ -68,18 +70,54 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - 创建商品
+// POST - 创建商品
 export async function POST(request: NextRequest) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const body = await request.json();
         const { name, subtitle, description, originalPrice, salePrice, cpsLink, coverImage, platformIds, channelId } = body;
+        let { slug } = body;
 
         if (!name || !cpsLink) {
             return NextResponse.json({ success: false, error: '请填写必填项' }, { status: 400 });
         }
 
+        // 自动生成 slug
+        if (!slug) {
+            const pinyin = require('pinyin');
+            try {
+                // @ts-ignore
+                const py = pinyin(name.trim().toLowerCase(), {
+                    style: pinyin.STYLE_NORMAL,
+                });
+                slug = py.flat().join('-');
+            } catch (e) {
+                // Fallback to random string if pinyin fails
+                console.error('Pinyin generation failed:', e);
+                slug = `product-${Date.now().toString(36)}`;
+            }
+        }
+
+        // 处理 slug 格式
+        slug = slug.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (!slug) slug = `product-${Date.now().toString(36)}`;
+
+        // 确保唯一性
+        let uniqueSlug = slug;
+        let counter = 1;
+        while (await prisma.product.findUnique({ where: { slug: uniqueSlug } })) {
+            uniqueSlug = `${slug}-${counter}`;
+            counter++;
+        }
+
         const product = await prisma.product.create({
             data: {
                 name,
+                slug: uniqueSlug,
                 subtitle,
                 description,
                 originalPrice: parseFloat(originalPrice) || 0,

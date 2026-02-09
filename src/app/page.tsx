@@ -20,6 +20,7 @@ interface Product {
   salePrice: number;
   cpsLink: string;
   coverImage: string | null;
+  slug: string | null;
   platforms: Platform[];
 }
 
@@ -122,11 +123,10 @@ export default function HomePage() {
   };
 
   const handleProductClick = (product: Product) => {
-    // 新标签页打开 CPS 链接
-    window.open(product.cpsLink, '_blank');
-
-    // 记录点击（可选）
-    fetch(`/api/products/${product.id}/click`, { method: 'POST' }).catch(() => { });
+    // 跳转到详情页
+    // 如果没有 slug，使用 ID 或 fallback
+    const targetSlug = product.slug || product.id;
+    window.location.href = `/soft/${targetSlug}`;
   };
 
   return (
