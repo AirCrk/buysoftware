@@ -44,6 +44,7 @@ export default function SettingsPage() {
         oss_access_key_secret: '',
         oss_bucket: '',
         oss_endpoint: '',
+        smms_token: '',
     });
 
     // 站点配置
@@ -103,6 +104,7 @@ export default function SettingsPage() {
                     oss_access_key_secret: settings.oss_access_key_secret || '',
                     oss_bucket: settings.oss_bucket || '',
                     oss_endpoint: settings.oss_endpoint || '',
+                    smms_token: settings.smms_token || '',
                 });
 
                 setSiteConfig({
@@ -436,19 +438,41 @@ export default function SettingsPage() {
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-5">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                            地域 (Region)
-                                        </label>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        SM.MS Token
+                                    </label>
+                                    <div className="relative">
                                         <input
-                                            type="text"
-                                            value={ossConfig.oss_region}
-                                            onChange={(e) => setOssConfig(prev => ({ ...prev, oss_region: e.target.value }))}
-                                            placeholder="如：oss-cn-hangzhou"
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            type="password"
+                                            value={ossConfig.smms_token}
+                                            onChange={(e) => setOssConfig({ ...ossConfig, smms_token: e.target.value })}
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="用于 SM.MS 图床上传鉴权"
                                         />
+                                        <CloudCog className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
+                                    <p className="text-xs text-gray-500 mt-1">从 https://sm.ms/home/apitoken 获取 Secret Token</p>
+                                </div>
+
+                                <div className="pt-4 border-t border-gray-200 space-y-5">
+                                <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                                        <CloudCog className="w-5 h-5 text-blue-600" />
+                                        阿里云 OSS 配置
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Region (区域)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={ossConfig.oss_region}
+                                                onChange={(e) => setOssConfig({ ...ossConfig, oss_region: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                placeholder="oss-cn-hangzhou"
+                                            />
+                                        </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
                                             存储桶名称 (Bucket)
@@ -509,10 +533,11 @@ export default function SettingsPage() {
                                     className="btn-primary flex items-center gap-2"
                                 >
                                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    保存 OSS 配置
-                                </button>
-                            </div>
-                        )}
+                                保存 OSS 配置
+                            </button>
+                        </div>
+                        </div>
+                    )}
 
                         {/* 站点配置 */}
                         {activeTab === 'site' && (

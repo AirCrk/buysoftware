@@ -9,6 +9,7 @@ const CONFIG_KEYS = {
     OSS_ACCESS_KEY_SECRET: 'oss_access_key_secret',
     OSS_BUCKET: 'oss_bucket',
     OSS_ENDPOINT: 'oss_endpoint',
+    SMMS_TOKEN: 'smms_token',
     SITE_NAME: 'site_name',
     SITE_DESCRIPTION: 'site_description',
     SITE_LOGO: 'site_logo',
@@ -22,8 +23,8 @@ export async function GET() {
         // 转换为对象格式
         const settings: Record<string, string> = {};
         configs.forEach((config: { key: string; value: string }) => {
-            // OSS 密钥类敏感信息，返回时脱敏
-            if (config.key === CONFIG_KEYS.OSS_ACCESS_KEY_SECRET && config.value) {
+            // 敏感信息脱敏
+            if ((config.key === CONFIG_KEYS.OSS_ACCESS_KEY_SECRET || config.key === CONFIG_KEYS.SMMS_TOKEN) && config.value) {
                 settings[config.key] = config.value.replace(/./g, (c: string, i: number) =>
                     i < 4 || i >= config.value.length - 4 ? c : '*'
                 );
@@ -61,12 +62,19 @@ export async function POST(request: NextRequest) {
         switch (action) {
             case 'update_oss': {
                 // 更新 OSS 配置
-                const ossKeys = ['oss_region', 'oss_access_key_id', 'oss_access_key_secret', 'oss_bucket', 'oss_endpoint'];
+                const ossKeys = [
+                    'oss_region', 
+                    'oss_access_key_id', 
+                    'oss_access_key_secret', 
+                    'oss_bucket', 
+                    'oss_endpoint',
+                    'smms_token'
+                ];
 
                 for (const key of ossKeys) {
                     if (data[key] !== undefined) {
                         // 如果是密钥且包含*，说明是脱敏数据，忽略
-                        if (key === 'oss_access_key_secret' && data[key].includes('*')) {
+                        if ((key === 'oss_access_key_secret' || key === 'smms_token') && data[key].includes('*')) {
                             continue;
                         }
 
@@ -78,7 +86,7 @@ export async function POST(request: NextRequest) {
                     }
                 }
 
-                return NextResponse.json({ success: true, message: 'OSS 配置已更新' });
+                return NextResponse.json({ success: true, message: '存储配置已更新' });
             }
 
             case 'update_site': {

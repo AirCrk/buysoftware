@@ -35,6 +35,9 @@ model Product {
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([isActive, createdAt])
+  @@index([isActive, viewCount])
 }
 
 // 平台枚举
@@ -93,4 +96,6 @@ model FriendLink {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
 }

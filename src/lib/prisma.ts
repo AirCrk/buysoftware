@@ -30,8 +30,8 @@ function createPrismaClient() {
    新的配置应使用端口 6543 (Transaction Mode) 来解决连接数限制问题。
 ================================================================================
             `;
-            console.error(errorMsg);
-            throw new Error('请重启开发服务器以应用 .env 更新！');
+            console.warn(errorMsg);
+            // throw new Error('请重启开发服务器以应用 .env 更新！');
         }
 
         // 脱敏输出连接字符串，方便调试连接模式（Session:5432 vs Transaction:6543）

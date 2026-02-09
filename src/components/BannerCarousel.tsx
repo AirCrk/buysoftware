@@ -73,6 +73,7 @@ export default function BannerCarousel({ slides, autoPlayInterval = 5000 }: Bann
                                 src={slide.imageUrl}
                                 alt={slide.title || 'Banner'}
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1280px"
                                 className="object-cover"
                                 priority
                             />

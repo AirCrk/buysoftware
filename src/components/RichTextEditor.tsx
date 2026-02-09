@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
 import {
     Bold, Italic, List, ListOrdered, Heading1, Heading2,
-    Image, Undo, Redo, Upload, Link, X, Loader2
+    Image, Undo, Redo, Upload, CloudUpload, Link, X, Loader2
 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
@@ -42,16 +42,21 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
     });
 
     // 上传图片
-    const handleImageUpload = useCallback(async (file: File) => {
+    const handleImageUpload = useCallback(async (file: File, target: 'oss' | 'smms' = 'oss') => {
         if (!editor) return;
 
         setUploading(true);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', 'editor');
+        
+        // OSS 需要 folder 参数
+        if (target === 'oss') {
+            formData.append('folder', 'editor');
+        }
 
         try {
-            const res = await fetch('/api/upload', {
+            const endpoint = target === 'smms' ? '/api/upload/smms' : '/api/upload';
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             });
@@ -61,19 +66,20 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                 editor.chain().focus().setImage({ src: data.url }).run();
                 setShowImageModal(false);
             } else {
-                alert('图片上传失败');
+                alert(data.error || '图片上传失败');
             }
         } catch (error) {
+            console.error('Upload error:', error);
             alert('图片上传失败');
         } finally {
             setUploading(false);
         }
     }, [editor]);
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, target: 'oss' | 'smms') => {
         const file = e.target.files?.[0];
         if (file) {
-            handleImageUpload(file);
+            handleImageUpload(file, target);
         }
         e.target.value = '';
     };
@@ -164,7 +170,7 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleFileSelect}
+                    onChange={(e) => handleFileSelect(e, 'oss')}
                     className="hidden"
                 />
 
@@ -217,21 +223,38 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     上传图片
                                 </label>
-                                <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
-                                    {uploading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Upload className="w-4 h-4" />
-                                    )}
-                                    {uploading ? '上传中...' : '选择图片文件'}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileSelect}
-                                        className="hidden"
-                                        disabled={uploading}
-                                    />
-                                </label>
+                                <div className="flex gap-2">
+                                    <label className="btn-secondary flex-1 inline-flex items-center justify-center gap-2 cursor-pointer">
+                                        {uploading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Upload className="w-4 h-4" />
+                                        )}
+                                        {uploading ? '上传中...' : '上传到服务器'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleFileSelect(e, 'oss')}
+                                            className="hidden"
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                    <label className="btn-secondary flex-1 inline-flex items-center justify-center gap-2 cursor-pointer bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100">
+                                        {uploading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <CloudUpload className="w-4 h-4" />
+                                        )}
+                                        {uploading ? '上传中...' : 'SM.MS 图床'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleFileSelect(e, 'smms')}
+                                            className="hidden"
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                </div>
                                 <p className="text-xs text-gray-500 mt-1">支持 JPG、PNG、WebP，最大 5MB</p>
                             </div>
 
