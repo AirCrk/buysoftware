@@ -37,4 +37,6 @@ export interface SiteConfig {
   footer_copyright: string;
   footer_description: string;
   contact_service_link?: string;
+  product_sidebar_ad_image?: string;
+  product_sidebar_ad_link?: string;
 }

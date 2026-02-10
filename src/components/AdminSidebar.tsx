@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Settings, LogOut, Link as LinkIcon } from 'lucide-react';
+import { LayoutDashboard, Store, Settings, LogOut, Link as LinkIcon, Megaphone } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 
 export default function AdminSidebar() {
@@ -13,6 +13,7 @@ export default function AdminSidebar() {
         { name: '商品管理', href: '/admin/products', icon: LayoutDashboard },
         { name: '渠道管理', href: '/admin/channels', icon: Store },
         { name: '友情链接', href: '/admin/friend-links', icon: LinkIcon },
+        { name: '广告设置', href: '/admin/ads', icon: Megaphone },
         { name: '系统设置', href: '/admin/settings', icon: Settings },
     ];
 

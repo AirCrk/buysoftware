@@ -66,7 +66,7 @@ export default async function ProductPage({ params }: Props) {
     const siteConfigs = await prisma.siteConfig.findMany({
         where: {
             key: {
-                in: ['footer_copyright', 'footer_description', 'contact_service_link']
+                in: ['footer_copyright', 'footer_description', 'contact_service_link', 'product_sidebar_ad_image', 'product_sidebar_ad_link']
             }
         }
     });
@@ -207,6 +207,35 @@ export default async function ProductPage({ params }: Props) {
 
                     {/* Right Column: Hot Products */}
                     <div className="w-full lg:w-80 flex-shrink-0">
+                        {/* 侧边栏广告 */}
+                        {configMap.product_sidebar_ad_image && (
+                            <div className="mb-8">
+                                {configMap.product_sidebar_ad_link ? (
+                                    <a 
+                                        href={configMap.product_sidebar_ad_link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="block hover:opacity-95 transition-opacity"
+                                    >
+                                        <Image
+                                            src={configMap.product_sidebar_ad_image}
+                                            alt="推荐"
+                                            width={320}
+                                            height={180}
+                                            className="w-full h-auto rounded-xl shadow-sm border border-gray-100"
+                                        />
+                                    </a>
+                                ) : (
+                                    <Image
+                                        src={configMap.product_sidebar_ad_image}
+                                        alt="推荐"
+                                        width={320}
+                                        height={180}
+                                        className="w-full h-auto rounded-xl shadow-sm border border-gray-100"
+                                    />
+                                )}
+                            </div>
+                        )}
                         <HotProducts />
                     </div>
                 </div>
