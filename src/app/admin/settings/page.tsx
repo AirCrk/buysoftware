@@ -48,6 +48,7 @@ export default function SettingsPage() {
         site_title: '',
         site_description: '',
         site_logo: '',
+        site_favicon: '',
         footer_copyright: '',
         footer_description: '',
         contact_service_link: '',
@@ -104,6 +105,7 @@ export default function SettingsPage() {
                     site_title: settings.site_title || '',
                     site_description: settings.site_description || '',
                     site_logo: settings.site_logo || '',
+                    site_favicon: settings.site_favicon || '',
                     footer_copyright: settings.footer_copyright || '',
                     footer_description: settings.footer_description || '',
                     contact_service_link: settings.contact_service_link || '',
@@ -513,6 +515,20 @@ export default function SettingsPage() {
                                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">留空则显示默认 Logo</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        网站图标 (Favicon URL)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={siteConfig.site_favicon}
+                                        onChange={(e) => setSiteConfig(prev => ({ ...prev, site_favicon: e.target.value }))}
+                                        placeholder="https://example.com/favicon.ico"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">网站浏览器标签页图标，建议使用 .ico 或 .png 格式</p>
                                 </div>
 
 

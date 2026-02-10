@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
             case 'update_site': {
                 // 更新站点配置
                 const siteKeys = [
-                    'site_name', 'site_description', 'site_logo', 'banner_slides', 
+                    'site_name', 'site_description', 'site_logo', 'site_favicon', 'banner_slides', 
                     'footer_copyright', 'footer_description', 'site_title', 
                     'contact_service_link',
                     'product_sidebar_ad_image', 'product_sidebar_ad_link',

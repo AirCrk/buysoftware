@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const configs = await prisma.siteConfig.findMany({
     where: {
-      key: { in: ["site_title", "site_description"] }
+      key: { in: ["site_title", "site_description", "site_favicon"] }
     }
   });
 
@@ -31,6 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: settings.site_title || "BuySoft - 正版软件导航平台",
     description: settings.site_description || "发现优质正版软件，享受专属优惠价格",
     keywords: ["正版软件", "软件导航", "软件优惠", "正版授权"],
+    icons: settings.site_favicon ? { icon: settings.site_favicon } : undefined,
   };
 }
 
