@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Monitor, Apple, Smartphone, Globe, LayoutGrid, AppWindow, Terminal, Chrome } from 'lucide-react';
+import { Monitor, Apple, Smartphone, Globe, LayoutGrid, AppWindow, Terminal, Chrome, Tv } from 'lucide-react';
 import prisma from '@/lib/prisma';
 
 interface RelatedProductsProps {
@@ -18,6 +18,7 @@ const platformIcons: Record<string, React.ReactNode> = {
   web: <Globe className="w-4 h-4" />,
   'chrome 扩展': <Chrome className="w-4 h-4" />,
   'chrome': <Chrome className="w-4 h-4" />,
+  tv: <Tv className="w-4 h-4" />,
 };
 
 export default async function RelatedProducts({ currentProductId }: RelatedProductsProps) {

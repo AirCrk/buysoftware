@@ -16,7 +16,7 @@ async function main() {
     console.log('开始初始化数据...');
 
     // 创建平台
-    const platforms = ['Windows', 'Mac', 'iOS', 'Android', 'Web'];
+    const platforms = ['Windows', 'Mac', 'iOS', 'Android', 'Web', 'TV'];
     for (const name of platforms) {
         await prisma.platform.upsert({
             where: { name },
