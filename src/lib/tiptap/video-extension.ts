@@ -56,10 +56,35 @@ export const Video = Node.create<VideoOptions>({
           src: (element as HTMLElement).getAttribute('src'),
         }),
       },
+      {
+        tag: 'iframe',
+        getAttrs: (element) => ({
+          src: (element as HTMLElement).getAttribute('src'),
+        }),
+      },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
+    const src = HTMLAttributes.src as string;
+    const isEmbed = src.includes('youtube.com') || src.includes('youtu.be') || src.includes('bilibili.com') || src.includes('player.bilibili.com');
+
+    if (isEmbed) {
+      return [
+        'div',
+        { class: 'aspect-video w-full my-4 rounded-lg overflow-hidden' },
+        [
+          'iframe',
+          mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+            class: 'w-full h-full',
+            frameborder: '0',
+            allowfullscreen: 'true',
+            sandbox: 'allow-scripts allow-same-origin allow-popups allow-presentation',
+          }),
+        ],
+      ];
+    }
+
     return [
       'video',
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {

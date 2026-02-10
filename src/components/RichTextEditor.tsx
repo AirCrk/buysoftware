@@ -16,6 +16,25 @@ interface RichTextEditorProps {
     onChange: (content: string) => void;
 }
 
+const getEmbedUrl = (url: string): string => {
+    // YouTube
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeMatch = url.match(youtubeRegex);
+    if (youtubeMatch && youtubeMatch[1]) {
+        return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    }
+
+    // Bilibili
+    // Support BV id: https://www.bilibili.com/video/BV1xx411c7mD
+    const bilibiliRegex = /bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/;
+    const bilibiliMatch = url.match(bilibiliRegex);
+    if (bilibiliMatch && bilibiliMatch[1]) {
+        return `https://player.bilibili.com/player.html?bvid=${bilibiliMatch[1]}&page=1&high_quality=1&danmaku=0`;
+    }
+    
+    return url;
+};
+
 export default function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [showImageModal, setShowImageModal] = useState(false);
@@ -160,7 +179,8 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
     const handleInsertVideo = () => {
         if (!editor || !videoUrl.trim()) return;
 
-        editor.chain().focus().setVideo({ src: videoUrl.trim() }).run();
+        const finalUrl = getEmbedUrl(videoUrl.trim());
+        editor.chain().focus().setVideo({ src: finalUrl }).run();
         setVideoUrl('');
         setShowVideoModal(false);
     };
