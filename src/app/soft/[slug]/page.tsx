@@ -115,9 +115,9 @@ export default async function ProductPage({ params }: Props) {
                     <div className="flex-1 min-w-0 max-w-5xl">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             {/* 商品头部信息 */}
-                            <div className="p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                            <div className="p-6 md:p-8 lg:p-10 flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12">
                                 {/* 左侧：图标/封面 */}
-                                <div className="flex-shrink-0 w-full md:w-[480px]">
+                                <div className="flex-shrink-0 w-full md:w-[40%] lg:w-[480px]">
                                     <ProductGallery 
                                         images={product.images && product.images.length > 0 ? product.images : (product.coverImage ? [product.coverImage] : [])}
                                         name={product.name}
@@ -159,15 +159,15 @@ export default async function ProductPage({ params }: Props) {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                                    <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 lg:gap-4 w-full md:w-auto">
                                         {product.downloadUrl && (
                                             <a
                                                 href={product.downloadUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-100 hover:border-blue-200 text-lg font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-105 active:scale-95 min-w-[160px]"
+                                                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-100 hover:border-blue-200 text-sm md:text-base lg:text-lg font-bold px-4 py-2.5 lg:px-8 lg:py-3.5 rounded-xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                                             >
-                                                <Download className="w-5 h-5" />
+                                                <Download className="w-4 h-4 lg:w-5 lg:h-5" />
                                                 下载试用
                                             </a>
                                         )}
@@ -176,10 +176,10 @@ export default async function ProductPage({ params }: Props) {
                                             href={product.cpsLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all hover:scale-105 active:scale-95 min-w-[200px]"
+                                            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base lg:text-lg font-bold px-4 py-2.5 lg:px-8 lg:py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                                         >
-                                            <ShoppingCart className="w-5 h-5" />
-                                            立即购买
+                                            <ShoppingCart className="w-4 h-4 lg:w-5 lg:h-5" />
+                                            购买正版
                                         </a>
                                     </div>
                                 </div>
