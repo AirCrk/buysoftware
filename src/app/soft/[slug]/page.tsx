@@ -108,7 +108,7 @@ export default async function ProductPage({ params }: Props) {
                                 rel="noopener noreferrer"
                                 className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm font-medium rounded-md transition-colors shadow-sm whitespace-nowrap"
                             >
-                                <span className="hidden md:inline">联系我们</span>
+                                <span className="hidden md:inline">合作联系</span>
                                 <span className="md:hidden">客服</span>
                             </a>
                         )}
