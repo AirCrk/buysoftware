@@ -116,11 +116,10 @@ function HomePageContent({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Header (White) */}
-      <header className="bg-white border-b border-gray-100">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             {siteConfig.site_logo ? (
               <div className="relative w-8 h-8 rounded-lg overflow-hidden">
                 <Image
@@ -137,23 +136,23 @@ function HomePageContent({
                 </span>
               </div>
             )}
-            <span className="text-xl font-bold text-gray-900">{siteConfig.site_name}</span>
+            <span className="text-lg md:text-xl font-bold text-gray-900 whitespace-nowrap">{siteConfig.site_name}</span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 flex-1 justify-end max-w-xl">
             {/* Search Box */}
-            <form onSubmit={handleSearch} className="w-64 lg:w-80">
+            <form onSubmit={handleSearch} className="flex-1 max-w-[200px] md:max-w-none">
               <div className="relative group">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="输入关键词搜索..."
-                  className="w-full pl-4 pr-10 py-2 bg-gray-100 border-none rounded-md text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-[#0e7490]/20 focus:bg-white transition-all"
+                  placeholder="搜索..."
+                  className="w-full pl-3 md:pl-4 pr-8 md:pr-10 py-1.5 md:py-2 bg-gray-100 border-none rounded-md text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-[#0e7490]/20 focus:bg-white transition-all"
                 />
                 <button
                   type="submit"
-                  className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-[#0e7490] transition-colors"
+                  className="absolute right-0 top-0 h-full px-2 md:px-3 text-gray-400 hover:text-[#0e7490] transition-colors"
                 >
                   <Search className="w-4 h-4" />
                 </button>
@@ -166,9 +165,10 @@ function HomePageContent({
                 href={siteConfig.contact_service_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 px-4 py-2 bg-[#0e7490] hover:bg-[#0891b2] text-white text-sm font-medium rounded-md transition-colors shadow-sm"
+                className="flex-shrink-0 px-3 py-1.5 md:px-4 md:py-2 bg-[#0e7490] hover:bg-[#0891b2] text-white text-xs md:text-sm font-medium rounded-md transition-colors shadow-sm whitespace-nowrap"
               >
-                联系我们
+                <span className="hidden md:inline">联系我们</span>
+                <span className="md:hidden">客服</span>
               </a>
             )}
           </div>
