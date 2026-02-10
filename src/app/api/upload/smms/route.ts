@@ -35,23 +35,40 @@ export async function POST(request: NextRequest) {
 
         // Create a new FormData for the upstream request
         const upstreamFormData = new FormData();
-        upstreamFormData.append('smfile', file);
-        upstreamFormData.append('format', 'json');
+        upstreamFormData.append('file', file);
+        // upstreamFormData.append('format', 'json'); // S.EE doesn't need this
 
-        const response = await fetch('https://sm.ms/api/v2/upload', {
+        console.log('Uploading to S.EE...');
+
+        // Use S.EE API endpoint
+        const response = await fetch('https://s.ee/api/v1/file/upload', {
             method: 'POST',
             headers: {
                 'Authorization': token,
-                // Note: Do NOT set Content-Type header manually for FormData, 
-                // fetch will generate it with the correct boundary.
-                'User-Agent': 'BuySoft/1.0'
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             },
             body: upstreamFormData,
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        // console.log('S.EE Raw Response:', responseText.substring(0, 500)); 
 
-        if (data.success) {
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse S.EE response as JSON. Response start with:', responseText.substring(0, 100));
+            return NextResponse.json({ 
+                success: false, 
+                error: '无法连接到 S.EE 服务器 (API 返回非 JSON)。请检查网络或开启代理。' 
+            }, { status: 502 });
+        }
+        
+        console.log('S.EE Upload Response:', JSON.stringify(data));
+
+        // S.EE returns code 200 for success, unlike SM.MS which uses code "success" or similar
+        // Documentation says code 0, but actual response is 200. We'll accept both.
+        if (data.code === 0 || data.code === 200 || data.success === true) {
             // 保存到本地数据库，标记为本站上传
             try {
                 await prisma.uploadedImage.create({
@@ -75,33 +92,8 @@ export async function POST(request: NextRequest) {
                 url: data.data.url,
                 delete: data.data.delete // Optional: return delete link if needed
             });
-        } else if (data.code === 'image_repeated') {
-            // SM.MS returns this code if image already exists
-            const url = data.images || (typeof data.data === 'string' ? data.data : data.data?.url);
-
-            // 如果是重复图片，也尝试记录到本地（如果本地没有的话），以便在历史记录中显示
-            if (url) {
-                try {
-                    const existing = await prisma.uploadedImage.findFirst({ where: { url } });
-                    if (!existing) {
-                        await prisma.uploadedImage.create({
-                            data: {
-                                url: url,
-                                filename: file.name, // 使用本次上传的文件名作为记录
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.error('保存重复图片记录失败:', e);
-                }
-            }
-
-            return NextResponse.json({ 
-                success: true, 
-                url: url
-            });
         } else {
-            return NextResponse.json({ success: false, error: data.message || 'SM.MS 上传失败' }, { status: 400 });
+            return NextResponse.json({ success: false, error: data.message || '上传失败' }, { status: 400 });
         }
 
     } catch (error) {

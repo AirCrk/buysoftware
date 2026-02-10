@@ -441,7 +441,7 @@ export default function SettingsPage() {
                                         />
                                         <CloudCog className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1">从 https://sm.ms/home/apitoken 获取 Secret Token</p>
+                                    <p className="text-xs text-gray-500 mt-1">从 https://sm.ms/home/apitoken 或 https://smms.app/home/apitoken (国内推荐) 获取 Secret Token</p>
                                 </div>
 
                                 <button
