@@ -11,7 +11,6 @@ import type { Product, BannerSlide, FriendLink, SiteConfig } from '@/types';
 
 const platformIcons: Record<string, React.ReactNode> = {
   windows: <LayoutGrid className="w-4 h-4" />,
-  mac: <AppWindow className="w-4 h-4" />, 
   macos: <AppWindow className="w-4 h-4" />,
   apple: <Apple className="w-4 h-4" />,
   android: <Smartphone className="w-4 h-4" />,

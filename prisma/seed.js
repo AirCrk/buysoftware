@@ -16,7 +16,7 @@ async function main() {
     console.log('开始初始化数据...');
 
     // 创建平台
-    const platforms = ['Windows', 'Mac', 'iOS', 'Android', 'Web', 'TV', 'iPad'];
+    const platforms = ['Windows', 'macOS', 'iOS', 'Android', 'Web', 'TV', 'iPad'];
     for (const name of platforms) {
         await prisma.platform.upsert({
             where: { name },
@@ -84,7 +84,7 @@ async function main() {
             originalPrice: 498,
             salePrice: 398,
             cpsLink: 'https://example.com/microsoft365',
-            platforms: ['Windows', 'Mac', 'iOS', 'Android'],
+            platforms: ['Windows', 'macOS', 'iOS', 'Android'],
         },
         {
             name: 'Adobe Photoshop',
@@ -92,7 +92,7 @@ async function main() {
             originalPrice: 888,
             salePrice: 688,
             cpsLink: 'https://example.com/photoshop',
-            platforms: ['Windows', 'Mac'],
+            platforms: ['Windows', 'macOS'],
         },
         {
             name: 'CleanMyMac X',
@@ -100,7 +100,7 @@ async function main() {
             originalPrice: 299,
             salePrice: 199,
             cpsLink: 'https://example.com/cleanmymac',
-            platforms: ['Mac'],
+            platforms: ['macOS'],
         },
         {
             name: '1Password',
@@ -108,7 +108,7 @@ async function main() {
             originalPrice: 199,
             salePrice: 149,
             cpsLink: 'https://example.com/1password',
-            platforms: ['Windows', 'Mac', 'iOS', 'Android'],
+            platforms: ['Windows', 'macOS', 'iOS', 'Android'],
         },
         {
             name: 'Notion',
@@ -116,7 +116,7 @@ async function main() {
             originalPrice: 96,
             salePrice: 48,
             cpsLink: 'https://example.com/notion',
-            platforms: ['Windows', 'Mac', 'iOS', 'Android'],
+            platforms: ['Windows', 'macOS', 'iOS', 'Android'],
         },
         {
             name: 'Parallels Desktop',
@@ -124,7 +124,7 @@ async function main() {
             originalPrice: 698,
             salePrice: 548,
             cpsLink: 'https://example.com/parallels',
-            platforms: ['Mac'],
+            platforms: ['macOS'],
         },
     ];
 

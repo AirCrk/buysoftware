@@ -145,7 +145,18 @@ export default function ProductEditPage() {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    setPlatforms(data.data);
+                    const platformOrder = ['Windows', 'macOS', 'Linux', 'Web', 'iOS', 'iPad', 'Android', 'TV', 'Chrome'];
+                    const sortedPlatforms = data.data.sort((a: Platform, b: Platform) => {
+                        const indexA = platformOrder.indexOf(a.name);
+                        const indexB = platformOrder.indexOf(b.name);
+                        
+                        if (indexA === -1 && indexB === -1) return 0;
+                        if (indexA === -1) return 1;
+                        if (indexB === -1) return -1;
+                        
+                        return indexA - indexB;
+                    });
+                    setPlatforms(sortedPlatforms);
                 }
             });
 
