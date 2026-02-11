@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Monitor, Apple, Smartphone, Globe, Home, Terminal, Chrome, LayoutGrid, AppWindow, Tv } from 'lucide-react';
+import { Monitor, Apple, Smartphone, Globe, Home, Terminal, Chrome, LayoutGrid, AppWindow, Tv, Tablet } from 'lucide-react';
 
 const navCategories = [
   { id: '全部', label: '首页', icon: Home, value: null },
@@ -11,6 +11,7 @@ const navCategories = [
   { id: 'Linux', label: 'Linux', icon: Terminal, value: 'Linux' },
   { id: 'Web', label: 'Web', icon: Globe, value: 'Web' },
   { id: 'iOS', label: 'iOS', icon: Apple, value: 'iOS' },
+  { id: 'iPad', label: 'iPad', icon: Tablet, value: 'iPad' },
   { id: 'Android', label: 'Android', icon: Smartphone, value: 'Android' },
   { id: 'TV', label: 'TV', icon: Tv, value: 'TV' },
   { id: 'Chrome', label: 'Chrome 扩展', icon: Chrome, value: 'Chrome' },
